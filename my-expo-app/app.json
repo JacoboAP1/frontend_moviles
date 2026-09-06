@@ -12,14 +12,10 @@
       "tsconfigPaths": true
     },
 
+    "scheme": "my-expo-app",
     "plugins": [
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/splash.png",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-router",
+      "expo-status-bar"
     ],
 
     "orientation": "portrait",
