@@ -1,29 +1,36 @@
 import { Link } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { Keyboard, Text, TouchableWithoutFeedback, View } from 'react-native';
-import Button from '../src/layout/Button';
-import { useAuth } from '../auth';
+import { ScrollView, Text, View } from 'react-native';
+import Button from '../src/components/Button';
 import Field from '../src/components/Field';
+import { useSession } from '../src/session/context';
 
-type Form = { email: string; password: string };
+type LoginForm = { email: string; password: string };
 
 export default function Login() {
-  const { signIn } = useAuth();
-  const { control, handleSubmit, setError, formState } = useForm<Form>({
+  const { signIn } = useSession();
+  const { control, handleSubmit, setError, formState } = useForm<LoginForm>({
     defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = async ({ email, password }: Form) => {
+  const submit = async ({ email, password }: LoginForm) => {
     try {
       await signIn(email, password);
-    } catch (e) {
-      setError('root', { message: (e as Error).message });
+    } catch (error) {
+      setError('root', { message: (error as Error).message });
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View className="flex-1 justify-center gap-4 p-6">
+    <ScrollView
+      className="flex-1 bg-neutral-50"
+      contentContainerClassName="flex-1 justify-center gap-5 p-6"
+      keyboardShouldPersistTaps="handled">
+      <View className="gap-1">
+        <Text className="text-2xl font-bold text-neutral-900">Mesa de ayuda</Text>
+        <Text className="text-neutral-500">Entra con tu cuenta</Text>
+      </View>
+
       <Field
         control={control}
         name="email"
@@ -40,22 +47,25 @@ export default function Login() {
         name="password"
         label="Contraseña"
         secureTextEntry
+        placeholder="••••••••"
         rules={{ required: 'La contraseña es obligatoria' }}
       />
 
       {!!formState.errors.root && (
-        <Text className="text-center text-red-600">{formState.errors.root.message}</Text>
+        <Text className="rounded-lg bg-red-50 p-3 text-center text-red-700">
+          {formState.errors.root.message}
+        </Text>
       )}
 
       <Button
-        text={formState.isSubmitting ? 'Entrando...' : 'Entrar'}
-        onPress={handleSubmit(onSubmit)}
+        text={formState.isSubmitting ? 'Entrando…' : 'Entrar'}
+        onPress={handleSubmit(submit)}
         disabled={formState.isSubmitting}
       />
+
       <Link href="/register" className="text-center text-blue-600">
         ¿No tienes cuenta? Regístrate
       </Link>
-    </View>
-    </TouchableWithoutFeedback>
+    </ScrollView>
   );
 }

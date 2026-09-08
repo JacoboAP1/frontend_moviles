@@ -1,34 +1,41 @@
 import { Link } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { Keyboard, Text, TouchableWithoutFeedback, View } from 'react-native';
-import Button from '../src/layout/Button';
-import { useAuth } from '../auth';
+import { ScrollView, Text } from 'react-native';
+import Button from '../src/components/Button';
 import Field from '../src/components/Field';
+import { useSession } from '../src/session/context';
 
-type Form = { name: string; email: string; password: string; confirm: string };
+type RegisterForm = { name: string; email: string; password: string; confirm: string };
 
 export default function Register() {
-  const { signUp } = useAuth();
-  const { control, handleSubmit, setError, getValues, formState } = useForm<Form>({
+  const { signUp } = useSession();
+  const { control, handleSubmit, setError, getValues, formState } = useForm<RegisterForm>({
     defaultValues: { name: '', email: '', password: '', confirm: '' },
   });
 
-  const onSubmit = async ({ name, email, password }: Form) => {
+  const submit = async ({ name, email, password }: RegisterForm) => {
     try {
       await signUp(name, email, password);
-    } catch (e) {
-      setError('root', { message: (e as Error).message });
+    } catch (error) {
+      setError('root', { message: (error as Error).message });
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View className="flex-1 justify-center gap-4 p-6">
+    <ScrollView
+      className="flex-1 bg-neutral-50"
+      contentContainerClassName="gap-5 p-6"
+      keyboardShouldPersistTaps="handled">
+      <Text className="text-neutral-500">
+        Crea tu cuenta para reportar y seguir tus casos.
+      </Text>
+
       <Field
         control={control}
         name="name"
-        label="Nombre"
+        label="Nombre completo"
         autoCapitalize="words"
+        placeholder="Tu nombre"
         rules={{
           required: 'El nombre es obligatorio',
           minLength: { value: 2, message: 'Mínimo 2 caracteres' },
@@ -50,6 +57,7 @@ export default function Register() {
         name="password"
         label="Contraseña"
         secureTextEntry
+        placeholder="••••••••"
         rules={{
           required: 'La contraseña es obligatoria',
           minLength: { value: 6, message: 'Mínimo 6 caracteres' },
@@ -60,6 +68,7 @@ export default function Register() {
         name="confirm"
         label="Confirmar contraseña"
         secureTextEntry
+        placeholder="••••••••"
         rules={{
           required: 'Confirma la contraseña',
           validate: (v) => v === getValues('password') || 'Las contraseñas no coinciden',
@@ -67,18 +76,20 @@ export default function Register() {
       />
 
       {!!formState.errors.root && (
-        <Text className="text-center text-red-600">{formState.errors.root.message}</Text>
+        <Text className="rounded-lg bg-red-50 p-3 text-center text-red-700">
+          {formState.errors.root.message}
+        </Text>
       )}
 
       <Button
-        text={formState.isSubmitting ? 'Creando...' : 'Crear cuenta'}
-        onPress={handleSubmit(onSubmit)}
+        text={formState.isSubmitting ? 'Creando…' : 'Crear cuenta'}
+        onPress={handleSubmit(submit)}
         disabled={formState.isSubmitting}
       />
+
       <Link href="/login" className="text-center text-blue-600">
         ¿Ya tienes cuenta? Inicia sesión
       </Link>
-    </View>
-    </TouchableWithoutFeedback>
+    </ScrollView>
   );
 }

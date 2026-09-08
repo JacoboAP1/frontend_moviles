@@ -1,20 +1,20 @@
 import { Stack } from 'expo-router';
 import '../global.css';
-import { AuthProvider, useAuth } from '../auth';
+import { SessionProvider, useSession } from '../src/session/context';
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootNavigator />
-    </AuthProvider>
+    <SessionProvider>
+      <Navigator />
+    </SessionProvider>
   );
 }
 
-function RootNavigator() {
-  const { user } = useAuth();
+function Navigator() {
+  const { user } = useSession();
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerTitleStyle: { fontWeight: '600' } }}>
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="index" options={{ title: 'Inicio' }} />
       </Stack.Protected>
