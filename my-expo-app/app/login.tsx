@@ -27,7 +27,7 @@ export default function Login() {
       contentContainerClassName="flex-1 justify-center gap-5 p-6"
       keyboardShouldPersistTaps="handled">
       <View className="gap-1">
-        <Text className="text-2xl font-bold text-neutral-900">Mesa de ayuda</Text>
+        <Text className="text-2xl font-bold text-neutral-900">Oficiar</Text>
         <Text className="text-neutral-500">Entra con tu cuenta</Text>
       </View>
 
