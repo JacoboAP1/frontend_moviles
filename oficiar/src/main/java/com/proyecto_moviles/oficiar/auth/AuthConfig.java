@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder; // Importar NoOp
 
 /**
  * Configuración de autenticación y seguridad para la aplicación.
@@ -24,12 +24,12 @@ public class AuthConfig {
     private final UsersRepository usersRepository;
 
     /**
-     * Bean para la codificación de contraseñas usando BCrypt.
-     * @return PasswordEncoder seguro para almacenar contraseñas
+     * Usa NoOpPasswordEncoder para manejar contraseñas en texto plano.
      */
+    @SuppressWarnings("deprecation")
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return NoOpPasswordEncoder.getInstance();
     }
 
     /**

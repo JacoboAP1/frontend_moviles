@@ -1,4 +1,4 @@
-package com.proyecto_moviles.oficiar.exceptions;
+package com.proyecto_moviles.oficiar.exceptions.UserExceptions;
 
 /**
  * Excepción personalizada cuando el email proporcionado no coincide

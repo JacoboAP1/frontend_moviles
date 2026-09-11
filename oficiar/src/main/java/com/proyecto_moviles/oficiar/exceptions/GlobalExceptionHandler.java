@@ -1,5 +1,12 @@
 package com.proyecto_moviles.oficiar.exceptions;
 
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioInvalidoException;
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioNoEncontradoException;
+import com.proyecto_moviles.oficiar.exceptions.RoleExceptions.RolNoPermitidoException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.BadCredentialsException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.CamposVaciosException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.InvalidEmailException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.UsuarioExistenteException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,6 +37,56 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
                         "error", "Invalid credentials",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(OficioInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> handleBadOficio(OficioInvalidoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "Oficio para trabajador inválido",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(CamposVaciosException.class)
+    public ResponseEntity<Map<String, Object>> handleCamposVacios(CamposVaciosException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "Algún campo de registro se encuentra vacío",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(UsuarioExistenteException.class)
+    public ResponseEntity<Map<String, Object>> handleUsuarioExistente(UsuarioExistenteException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "error", "No se permiten usuarios duplicados",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(RolNoPermitidoException.class)
+    public ResponseEntity<Map<String, Object>> handleRoleInvalido(RolNoPermitidoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "No se permite ese rol dentro de la plataforma",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(OficioNoEncontradoException.class)
+    public ResponseEntity<Map<String, Object>> handleOficioNoEncontrado(OficioNoEncontradoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "error", "No se encontró un oficio con ese ID",
                         "message", ex.getMessage()
                 ));
     }

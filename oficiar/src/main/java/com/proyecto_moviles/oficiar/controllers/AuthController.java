@@ -1,20 +1,25 @@
 package com.proyecto_moviles.oficiar.controllers;
 
 import com.proyecto_moviles.oficiar.auth.JwtService;
-import com.proyecto_moviles.oficiar.exceptions.BadCredentialsException;
-import com.proyecto_moviles.oficiar.exceptions.InvalidEmailException;
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioInvalidoException;
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioNoEncontradoException;
+import com.proyecto_moviles.oficiar.exceptions.RoleExceptions.RolNoPermitidoException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.BadCredentialsException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.CamposVaciosException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.InvalidEmailException;
+import com.proyecto_moviles.oficiar.exceptions.UserExceptions.UsuarioExistenteException;
 import com.proyecto_moviles.oficiar.models.dto.RegisterRequest;
+import com.proyecto_moviles.oficiar.models.entities.Perfil;
 import com.proyecto_moviles.oficiar.models.entities.Role;
 import com.proyecto_moviles.oficiar.models.entities.Users;
+import com.proyecto_moviles.oficiar.repositories.PerfilRepository;
 import com.proyecto_moviles.oficiar.repositories.RoleRepository;
 import com.proyecto_moviles.oficiar.repositories.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -46,10 +51,8 @@ public class AuthController {
      * Servicio para la gestión de JWT.
      */
     private final JwtService jwt;
-    /**
-     * PasswordEncoder para encriptar contraseñas.
-     */
-    private final PasswordEncoder passwordEncoder;
+
+    private final PerfilRepository perfilRepository;
 
     /**
      * Endpoint para el login de usuarios.
@@ -87,27 +90,44 @@ public class AuthController {
 
     /**
      * Endpoint para el registro de nuevos usuarios.
-     * Valida los datos, asigna roles y retorna un token JWT.
-     * @param req datos de registro (username, password, roles)
+     * Normaliza los roles recibidos a mayúsculas y les asegura el prefijo 'ROLE_'.
+     * @param req datos de registro (username, email, password, roles)
      * @return mapa con el token, tipo y roles
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> register(@RequestBody RegisterRequest req) {
         if (req.getUsername() == null || req.getPassword() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing username or password");
+            throw new CamposVaciosException("Falta colocar nombre de usuario o contraseña");
         }
         if (usuarioRepo.findByUsername(req.getUsername()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+            throw new UsuarioExistenteException("Ese nombre de usuario ya existe");
         }
 
-        List<String> roleNames = (req.getRoles() == null || req.getRoles().isEmpty())
-                ? List.of("USER")
+        // Si no se envían roles, por defecto asigna ROLE_CLIENT
+        List<String> rawRoles = (req.getRoles() == null || req.getRoles().isEmpty())
+                ? List.of("WORKER")
                 : req.getRoles();
 
-        // Manejo correcto de roles para evitar ConcurrentModificationException
+        // Normalización: convierte a mayúsculas y asegura el prefijo ROLE_
+        List<String> normalizedRoleNames = rawRoles.stream()
+                .filter(role -> role != null && !role.trim().isEmpty())
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .toList();
+
+        // 3. Validación de seguridad: SOLO se permiten ROLE_CLIENT y ROLE_WORKER en el registro público
+        Set<String> rolesPermitidos = Set.of("ROLE_CLIENT", "ROLE_WORKER");
+        for (String roleName : normalizedRoleNames) {
+            if (!rolesPermitidos.contains(roleName)) {
+                throw new RolNoPermitidoException(roleName + "No es posible. Ingrese CLIENT o WORKER, por favor");
+            }
+        }
+
+        // Asignación de entidades de rol desde la BD evitando duplicados
         Set<Role> roleEntities = new HashSet<>();
-        for (String roleName : roleNames) {
+        for (String roleName : normalizedRoleNames) {
             Role role = rolRepo.findByName(roleName).orElseGet(() -> {
                 Role newRole = new Role();
                 newRole.setName(roleName);
@@ -116,11 +136,30 @@ public class AuthController {
             roleEntities.add(role);
         }
 
+        // 2. Crear y llenar la entidad de usuario
         Users user = new Users();
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setTelefono(req.getTelefono()); // <-- Guarda el teléfono
+        user.setPassword(req.getPassword()); // En texto plano
         user.setRoles(roleEntities);
+
+        // Validar que si es WORKER, traiga al menos un oficio
+        if (normalizedRoleNames.contains("ROLE_WORKER")) {
+            if (req.getPerfilIds() == null || req.getPerfilIds().isEmpty()) {
+                throw new OficioInvalidoException("Ingrese un ID de oficio válido para registrarse");
+            }
+
+            // Si pasa la validación, asociamos los perfiles de forma segura
+            Set<Perfil> perfiles = new HashSet<>(perfilRepository.findAllById(req.getPerfilIds()));
+
+            // Opcional: Validar que los IDs enviados realmente existan en la BD
+            if (perfiles.isEmpty()) {
+                throw new OficioNoEncontradoException("Ingrese un perfil de oficio de la lista, por favor");
+            }
+
+            user.setPerfiles(perfiles);
+        }
 
         usuarioRepo.save(user);
 

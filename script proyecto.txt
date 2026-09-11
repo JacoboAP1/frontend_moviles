@@ -1,11 +1,12 @@
-CREATE DATABASE IF NOT EXISTS baseoficar3;
-USE baseoficar3;
+CREATE DATABASE IF NOT EXISTS oficiar_db3;
+USE oficiar_db3;
 
--- 1. Tabla de Usuarios
+-- 1. Tabla de Usuarios (con el campo telefono añadido)
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
+    telefono VARCHAR(20) NULL,
     password VARCHAR(255) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,7 +27,7 @@ CREATE TABLE IF NOT EXISTS user_role (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
--- 4. Nueva Entidad: Perfil (Atributos: id, oficio)
+-- 4. Entidad: Perfil (Atributos: id, oficio)
 CREATE TABLE IF NOT EXISTS perfil (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     oficio VARCHAR(100) NOT NULL UNIQUE
@@ -39,4 +40,38 @@ CREATE TABLE IF NOT EXISTS user_perfil (
     PRIMARY KEY (user_id, perfil_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (perfil_id) REFERENCES perfil(id) ON DELETE CASCADE
+);
+
+-- =======================================================
+-- DATOS INICIALES
+-- =======================================================
+
+-- Roles requeridos
+INSERT IGNORE INTO roles (name) VALUES 
+('ROLE_CLIENT'),
+('ROLE_WORKER'),
+('ROLE_ADMIN');
+
+-- Catálogo inicial de oficios para la lista desplegable de trabajador
+INSERT IGNORE INTO perfil (oficio) VALUES 
+('Plomero'),
+('Electricista'),
+('Carpintero'),
+('Pintor'),
+('Cerrajero'),
+('Jardinero'),
+('Albañil'),
+('Mecánico'),
+('Técnico de Aire Acondicionado'),
+('Limpieza de Hogar');
+
+-- Usuario Administrador por defecto (Contraseña en texto plano: admin123)
+INSERT IGNORE INTO users (username, email, telefono, password, active) 
+VALUES ('admin', 'admin@oficiar.com', '3000000000', 'admin123', TRUE);
+
+-- Asignación del rol ADMIN al usuario admin
+INSERT IGNORE INTO user_role (user_id, role_id)
+VALUES (
+    (SELECT id FROM users WHERE username = 'admin'),
+    (SELECT id FROM roles WHERE name = 'ROLE_ADMIN')
 );

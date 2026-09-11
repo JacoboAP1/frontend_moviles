@@ -63,6 +63,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Permite el acceso sin autenticación a los endpoints de login y registro
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        // Permite traer la lista de los perfiles profesionales al formulario de registro en WORKER
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/perfiles").permitAll()
                         // El resto de endpoints requieren autenticación
                         .anyRequest().authenticated()
                 )

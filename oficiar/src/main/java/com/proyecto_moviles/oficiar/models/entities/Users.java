@@ -29,6 +29,9 @@ public class Users implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "telefono", length = 20)
+    private String telefono;
+
     private Boolean active = true;
 
     @Column(name = "created_at", insertable = false, updatable = false)
@@ -41,6 +44,14 @@ public class Users implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_perfil",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "perfil_id")
+    )
+    private Set<Perfil> perfiles = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
