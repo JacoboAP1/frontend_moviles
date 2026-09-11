@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS oficiar_db3;
-USE oficiar_db3;
+CREATE DATABASE IF NOT EXISTS baseoficar3;
+USE baseoficar3;
 
 -- 1. Tabla de Usuarios
 CREATE TABLE IF NOT EXISTS users (
