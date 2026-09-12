@@ -4,7 +4,7 @@ USE oficiar_db3;
 -- 1. Tabla de Usuarios (con el campo telefono añadido)
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     telefono VARCHAR(20) NULL,
     password VARCHAR(255) NOT NULL,
