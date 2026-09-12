@@ -1,5 +1,6 @@
 package com.proyecto_moviles.oficiar.services;
 
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioAsociadoException;
 import com.proyecto_moviles.oficiar.models.entities.Perfil;
 import com.proyecto_moviles.oficiar.repositories.PerfilRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,12 +70,18 @@ public class PerfilService {
         return perfilRepository.save(perfilExistente);
     }
 
-    // DELETE: Eliminar un oficio por ID
+    // DELETE: Eliminar un oficio por ID solo si no está en uso
     @Transactional
     public void deletePerfil(Long id) {
         if (!perfilRepository.existsById(id)) {
             throw new IllegalArgumentException("No se puede eliminar. Perfil no encontrado con ID: " + id);
         }
+
+        // Validación del profesor: Verificar si hay usuarios usándolo
+        if (perfilRepository.isPerfilInUse(id)) {
+            throw new OficioAsociadoException("Intente ingresando otro ID");
+        }
+
         perfilRepository.deleteById(id);
     }
 }
