@@ -1,5 +1,6 @@
 package com.proyecto_moviles.oficiar.exceptions;
 
+import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioAsociadoException;
 import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioInvalidoException;
 import com.proyecto_moviles.oficiar.exceptions.PerfilExceptions.OficioNoEncontradoException;
 import com.proyecto_moviles.oficiar.exceptions.RoleExceptions.RolNoPermitidoException;
@@ -87,6 +88,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "error", "No se encontró un oficio con ese ID",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(OficioAsociadoException.class)
+    public ResponseEntity<Map<String, Object>> handleOficioAsociado(OficioAsociadoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "error", "No se puede eliminar el oficio porque hay trabajadores asociados a él",
                         "message", ex.getMessage()
                 ));
     }
