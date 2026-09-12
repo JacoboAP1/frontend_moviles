@@ -14,10 +14,16 @@ function Navigator() {
   const { user } = useSession();
 
   return (
-    <Stack screenOptions={{ headerTitleStyle: { fontWeight: '600' } }}>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: '#051A26' },
+        headerTintColor: '#ffffff',
+        headerTitleStyle: { fontWeight: '600' },
+      }}>
       <Stack.Protected guard={!!user}>
-        <Stack.Screen name="index" options={{ title: 'Inicio' }} />
-        <Stack.Screen name="admin" options={{ title: 'Administración' }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="admin" options={{ headerShown: false }} />
+        <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!user}>

@@ -1,16 +1,20 @@
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import Button from '../src/components/Button';
+import Logo from '../src/components/Logo';
 
 export default function Welcome() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 justify-center gap-8 bg-neutral-50 p-6">
-      <View className="items-center gap-2">
-        <Text className="text-3xl font-bold text-neutral-900">Oficiar</Text>
-        <Text className="text-center text-neutral-500">
-          Conectamos clientes con profesionales de confianza
+    <View className="flex-1 justify-center gap-10 bg-oficiar-gray px-6 pb-10">
+      <View className="items-center gap-3">
+        <Logo size="lg" />
+        <Text className="text-center text-base text-oficiar-very-dark">
+          Soluciones{' '}
+          <Text className="font-bold text-oficiar-blue">profesionales</Text>
+          {'\n'}para tu hogar{' '}
+          <Text className="font-bold text-oficiar-blue">al instante</Text>
         </Text>
       </View>
 
@@ -21,15 +25,15 @@ export default function Welcome() {
         />
         <Button
           text="Hazte Officer"
+          variant="yellow"
           onPress={() => router.push('/register?role=WORKER')}
-          secondary
         />
       </View>
 
       <Button
         text="Iniciar Sesión"
+        variant="secondary"
         onPress={() => router.push('/login')}
-        secondary
       />
     </View>
   );

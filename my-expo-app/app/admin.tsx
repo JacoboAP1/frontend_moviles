@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Button from '../src/components/Button';
+import Logo from '../src/components/Logo';
 import { createPerfil, deletePerfil, getPerfiles } from '../src/api/perfiles';
 import { useSession } from '../src/session/context';
 import type { Perfil } from '../src/types';
@@ -80,12 +81,13 @@ export default function Admin() {
   };
 
   return (
-    <View className="flex-1 bg-neutral-50">
-      <View className="gap-1 border-b border-neutral-200 bg-white px-6 pb-4 pt-4">
-        <Text className="text-lg font-bold text-neutral-900">
+    <View className="flex-1 bg-oficiar-gray">
+      <View className="items-center gap-1 bg-oficiar-dark px-6 pb-4 pt-12">
+        <Logo size="sm" light />
+        <Text className="text-lg font-bold text-white">
           Panel de Administrador
         </Text>
-        <Text className="text-sm text-neutral-500">
+        <Text className="text-sm text-oficiar-blue">
           Hola, {user?.name} — gestiona el catálogo de oficios
         </Text>
       </View>
@@ -101,7 +103,7 @@ export default function Admin() {
         <Pressable
           onPress={handleCrear}
           disabled={submitting}
-          className="items-center justify-center rounded-lg bg-blue-600 px-4 active:opacity-80 disabled:opacity-50">
+          className="items-center justify-center rounded-lg bg-oficiar-blue-btn px-4 active:opacity-80 disabled:opacity-50">
           <Text className="font-semibold text-white">
             {submitting ? '...' : 'Agregar'}
           </Text>
@@ -109,7 +111,7 @@ export default function Admin() {
       </View>
 
       {loading ? (
-        <ActivityIndicator className="mt-8" />
+        <ActivityIndicator className="mt-8" color="#3D80B7" />
       ) : (
         <FlatList
           data={perfiles}
@@ -122,7 +124,7 @@ export default function Admin() {
           }
           renderItem={({ item }) => (
             <View className="flex-row items-center justify-between rounded-xl bg-white px-4 py-3">
-              <Text className="flex-1 text-neutral-900">{item.oficio}</Text>
+              <Text className="flex-1 text-oficiar-very-dark">{item.oficio}</Text>
               <Pressable
                 onPress={() => handleEliminar(item)}
                 className="rounded-lg bg-red-50 px-3 py-2 active:opacity-80">
@@ -136,7 +138,7 @@ export default function Admin() {
       )}
 
       <View className="px-6 pb-6">
-        <Button text="Cerrar sesión" onPress={signOut} secondary />
+        <Button text="Cerrar sesión" onPress={signOut} variant="secondary" />
       </View>
     </View>
   );
