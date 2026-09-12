@@ -28,7 +28,7 @@ export default function Login() {
       keyboardShouldPersistTaps="handled">
       <View className="gap-1">
         <Text className="text-2xl font-bold text-neutral-900">Oficiar</Text>
-        <Text className="text-neutral-500">Entra con tu cuenta</Text>
+        <Text className="text-neutral-500">Inicia sesión con tu cuenta</Text>
       </View>
 
       <Field
@@ -63,8 +63,8 @@ export default function Login() {
         disabled={formState.isSubmitting}
       />
 
-      <Link href="/register" className="text-center text-blue-600">
-        ¿No tienes cuenta? Regístrate
+      <Link href="/welcome" className="text-center text-blue-600">
+        Volver al inicio
       </Link>
     </ScrollView>
   );

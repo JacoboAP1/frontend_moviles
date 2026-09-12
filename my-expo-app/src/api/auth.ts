@@ -12,7 +12,28 @@ export async function login(email: string, password: string) {
   return { token: data.access_token, roles: data.roles };
 }
 
-export async function register(username: string, email: string, password: string, roles: Role[] = ['ROLE_WORKER']) {
-  const data = await request<AuthResponse>('/auth/register', { username, password, email, roles });
+interface RegisterParams {
+  username: string;
+  email: string;
+  password: string;
+  telefono: string;
+  roles: Role[];
+  perfilIds?: number[];
+}
+
+export async function register(params: RegisterParams) {
+  const body: Record<string, unknown> = {
+    username: params.username,
+    email: params.email,
+    password: params.password,
+    telefono: params.telefono,
+    roles: params.roles,
+  };
+
+  if (params.perfilIds?.length) {
+    body.perfilIds = params.perfilIds;
+  }
+
+  const data = await request<AuthResponse>('/auth/register', body);
   return { token: data.access_token, roles: data.roles };
 }

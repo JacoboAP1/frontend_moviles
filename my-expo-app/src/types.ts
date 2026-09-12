@@ -4,5 +4,11 @@ export type Role = (typeof ROLES)[number];
 export interface User {
   name: string;
   email: string;
+  telefono: string;
   roles: Role[];
+}
+
+export interface Perfil {
+  id: number;
+  oficio: string;
 }

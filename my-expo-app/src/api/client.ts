@@ -10,12 +10,16 @@ export function getToken(): string | null {
   return token;
 }
 
-export async function request<T>(path: string, body?: unknown): Promise<T> {
+export async function request<T>(
+  path: string,
+  body?: unknown,
+  method?: string,
+): Promise<T> {
   let response: Response;
 
   try {
     response = await fetch(`${API_URL}${path}`, {
-      method: body === undefined ? 'GET' : 'POST',
+      method: method ?? (body === undefined ? 'GET' : 'POST'),
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -26,10 +30,17 @@ export async function request<T>(path: string, body?: unknown): Promise<T> {
     throw new Error(`No se pudo conectar con ${API_URL}. ¿Está encendido el servidor?`);
   }
 
+  if (method === 'DELETE' && response.status === 204) {
+    return {} as T;
+  }
+
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!response.ok) {
-    const message = typeof data['message'] === 'string' ? data['message'] : null;
+    const raw =
+      typeof data['message'] === 'string' ? data['message'] :
+      typeof data['error'] === 'string' ? data['error'] : null;
+    const message = raw === 'Bad credentials' ? 'Credenciales incorrectas' : raw;
     throw new Error(message ?? `Error ${response.status} al llamar ${path}`);
   }
 

@@ -3,10 +3,19 @@ import * as api from '../api/auth';
 import { setToken } from '../api/client';
 import type { Role, User } from '../types';
 
+export interface SignUpData {
+  name: string;
+  email: string;
+  password: string;
+  telefono: string;
+  role: Role;
+  perfilIds?: number[];
+}
+
 interface Session {
   user: User | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
+  signUp: (data: SignUpData) => Promise<void>;
   signOut: () => void;
 }
 
@@ -24,24 +33,39 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const signIn = async (email: string, password: string) => {
     const session = await api.login(email.trim().toLowerCase(), password);
     setToken(session.token);
-    setUser({ name: email.trim().toLowerCase(), email: email.trim().toLowerCase(), roles: session.roles });
+    setUser({
+      name: email.trim().toLowerCase(),
+      email: email.trim().toLowerCase(),
+      telefono: '',
+      roles: session.roles,
+    });
+  };
+
+  const signUp = async (data: SignUpData) => {
+    const session = await api.register({
+      username: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      password: data.password,
+      telefono: data.telefono.trim(),
+      roles: [data.role],
+      perfilIds: data.perfilIds,
+    });
+    setToken(session.token);
+    setUser({
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      telefono: data.telefono.trim(),
+      roles: session.roles,
+    });
+  };
+
+  const signOut = () => {
+    setToken(null);
+    setUser(null);
   };
 
   return (
-    <SessionContext
-      value={{
-        user,
-        signIn,
-        signUp: async (name, email, password) => {
-          const session = await api.register(name.trim(), email.trim().toLowerCase(), password);
-          setToken(session.token);
-          setUser({ name: name.trim(), email: email.trim().toLowerCase(), roles: session.roles });
-        },
-        signOut: () => {
-          setToken(null);
-          setUser(null);
-        },
-      }}>
+    <SessionContext value={{ user, signIn, signUp, signOut }}>
       {children}
     </SessionContext>
   );

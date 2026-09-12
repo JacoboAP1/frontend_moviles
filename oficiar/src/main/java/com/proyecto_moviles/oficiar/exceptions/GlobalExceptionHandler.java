@@ -97,7 +97,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
-                        "error", "No se puede eliminar el oficio porque hay trabajadores asociados a él",
+                        "error", "Oficio en uso",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "Solicitud inválida",
                         "message", ex.getMessage()
                 ));
     }

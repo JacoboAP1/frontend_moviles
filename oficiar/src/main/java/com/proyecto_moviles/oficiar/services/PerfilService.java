@@ -79,7 +79,7 @@ public class PerfilService {
 
         // Validación del profesor: Verificar si hay usuarios usándolo
         if (perfilRepository.isPerfilInUse(id)) {
-            throw new OficioAsociadoException("Intente ingresando otro ID");
+            throw new OficioAsociadoException("Este oficio tiene trabajadores asociados y no se puede eliminar");
         }
 
         perfilRepository.deleteById(id);
