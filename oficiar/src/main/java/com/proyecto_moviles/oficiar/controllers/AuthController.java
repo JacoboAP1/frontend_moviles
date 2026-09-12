@@ -100,8 +100,8 @@ public class AuthController {
         if (req.getUsername() == null || req.getPassword() == null) {
             throw new CamposVaciosException("Falta colocar nombre de usuario o contraseña");
         }
-        if (usuarioRepo.findByUsername(req.getUsername()).isPresent()) {
-            throw new UsuarioExistenteException("Ese nombre de usuario ya existe");
+        if (usuarioRepo.findByEmail(req.getEmail()).isPresent()) {
+            throw new UsuarioExistenteException("Ese correo de usuario ya existe");
         }
 
         // Si no se envían roles, por defecto asigna ROLE_CLIENT
